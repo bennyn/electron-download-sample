@@ -7,7 +7,10 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 
 function createWindow() {
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+  });
   
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
@@ -19,22 +22,23 @@ function createWindow() {
     mainWindow = null
   });
   
-  mainWindow.webContents.session.once('will-download', function onDownload(e, item) {
-    let defaultFilename = item.getFilename();
+  mainWindow.webContents.session.once('will-download', function onDownload(event, item) {
+    event.preventDefault();
+    let originalName = item.getFilename();
     
     const options = {
       defaultPath: path.basename('sample.ext')
     };
     
-    let filename = electron.dialog.showSaveDialog(mainWindow, options);
+    let fileName = electron.dialog.showSaveDialog(mainWindow, options);
     
-    if (!filename) {
+    if (!fileName) {
       item.cancel();
     } else {
-      const savePathObject = path.parse(filename);
-      savePathObject.base = null;
-      savePathObject.ext = savePathObject.ext || path.extname(defaultFilename);
-      item.setSavePath(path.format(savePathObject));
+      const targetPath = path.parse(fileName);
+      targetPath.base = null;
+      targetPath.ext = targetPath.ext || path.extname(originalName);
+      item.setSavePath(path.format(targetPath));
     }
   });
   
