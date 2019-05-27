@@ -11,27 +11,29 @@ function createWindow() {
     width: 800,
     height: 600
   });
-  
+
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
   }));
-  
+
+  mainWindow.webContents.openDevTools({mode: 'detach'});
+
   mainWindow.on('closed', () => {
-    mainWindow = null
+    mainWindow = null;
   });
-  
+
   mainWindow.webContents.session.once('will-download', function onDownload(event, item) {
     event.preventDefault();
     let originalName = item.getFilename();
-    
+
     const options = {
       defaultPath: path.basename('sample.ext')
     };
-    
+
     let fileName = electron.dialog.showSaveDialog(mainWindow, options);
-    
+
     if (!fileName) {
       item.cancel();
     } else {
@@ -41,7 +43,7 @@ function createWindow() {
       item.setSavePath(path.format(targetPath));
     }
   });
-  
+
   mainWindow.webContents.on('dom-ready', () => {
     const url = 'https://bitcoin.org/bitcoin.pdf';
     mainWindow.show();
